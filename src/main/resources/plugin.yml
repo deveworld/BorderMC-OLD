@@ -1,0 +1,18 @@
+main: com.github.mcsim415.bordermc.BordermcPlugin
+name: Bordermc
+version: '1.0.0'
+author: mcsim415
+description: Bordermc Plugin
+api-version: 1.8
+
+commands:
+  bm:
+    usage: "Usage: /bm"
+    description: "Join bordermc game"
+  bmdev:
+    usage: "Usage: /bmdev"
+    description: "bordermc command for developer"
+
+libraries:
+  - org.jetbrains.kotlin:kotlin-stdlib:1.5.31
+  - org.jetbrains.kotlin:kotlin-reflect:1.5.31
