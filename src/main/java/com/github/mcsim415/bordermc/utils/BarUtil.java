@@ -1,7 +1,6 @@
 package com.github.mcsim415.bordermc.utils;
 
 import net.minecraft.server.v1_8_R3.*;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
@@ -25,7 +24,7 @@ public class BarUtil {
         WorldServer world = ((CraftWorld) p.getLocation().getWorld()).getHandle();
 
         EntityEnderDragon dragon = new EntityEnderDragon(world);
-        dragon.setLocation(0, -10, 0, 0, 0);
+        dragon.setLocation(0, -80, 0, 0, 0);
 
         PacketPlayOutSpawnEntityLiving packet = new PacketPlayOutSpawnEntityLiving(dragon);
 
@@ -38,6 +37,23 @@ public class BarUtil {
         watcher.a(3, (byte) 1); // maybe nothing
         watcher.a(8, (byte) 0); // invisible, too..?
 
+        /*
+          Error
+          java.lang.NullPointerException
+                  at net.minecraft.server.v1_8_R3.DataWatcher.a(DataWatcher.java:33) ~[patched.jar:git-PaperSpigot-"4c7641d"]
+                  at com.github.mcsim415.bordermc.utils.BarUtil.setBar(BarUtil.java:34) ~[?:?]
+                  at com.github.mcsim415.bordermc.utils.BarUtil.updateBar(BarUtil.java:95) ~[?:?]
+                  at com.github.mcsim415.bordermc.utils.BarUtil.updateHealth(BarUtil.java:75) ~[?:?]
+                  at com.github.mcsim415.bordermc.game.GameManager.phase$lambda-2(GameManager.kt:146) ~[?:?]
+                  at org.bukkit.craftbukkit.v1_8_R3.scheduler.CraftTask.run(CraftTask.java:59) ~[patched.jar:git-PaperSpigot-"4c7641d"]
+                  at org.bukkit.craftbukkit.v1_8_R3.scheduler.CraftScheduler.mainThreadHeartbeat(CraftScheduler.java:352) [patched.jar:git-PaperSpigot-"4c7641d"]
+                  at net.minecraft.server.v1_8_R3.MinecraftServer.B(MinecraftServer.java:783) [patched.jar:git-PaperSpigot-"4c7641d"]
+                  at net.minecraft.server.v1_8_R3.DedicatedServer.B(DedicatedServer.java:378) [patched.jar:git-PaperSpigot-"4c7641d"]
+                  at net.minecraft.server.v1_8_R3.MinecraftServer.A(MinecraftServer.java:713) [patched.jar:git-PaperSpigot-"4c7641d"]
+                  at net.minecraft.server.v1_8_R3.MinecraftServer.run(MinecraftServer.java:616) [patched.jar:git-PaperSpigot-"4c7641d"]
+                  at java.lang.Thread.run(Thread.java:748) [?:1.8.0_311]
+         */
+
         try{
             Field t = PacketPlayOutSpawnEntityLiving.class.getDeclaredField("l");
             t.setAccessible(true);
@@ -46,22 +62,22 @@ public class BarUtil {
             ex.printStackTrace();
         }
 
-        dragons.put(p.getName(), dragon);
+        dragons.put(p.getUniqueId().toString(), dragon);
         ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
     }
 
     public static void removeBar(Player p) {
-        if(dragons.containsKey(p.getName())) {
-            PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(dragons.get(p.getName()).getId());
-            dragons.remove(p.getName());
+        if(dragons.containsKey(p.getUniqueId().toString())) {
+            PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(dragons.get(p.getUniqueId().toString()).getId());
+            dragons.remove(p.getUniqueId().toString());
             ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
         }
     }
 
     public static void teleportBar(Player p) {
-        if(dragons.containsKey(p.getName())) {
+        if(dragons.containsKey(p.getUniqueId().toString())) {
             Location loc = p.getLocation();
-            PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport(dragons.get(p.getName()).getId(),
+            PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport(dragons.get(p.getUniqueId().toString()).getId(),
                     (int) loc.getX() * 32, (int) (loc.getY() - 100) * 32, (int) loc.getZ() * 32,
                     (byte) ((int) loc.getYaw() * 256 / 360), (byte) ((int) loc.getPitch() * 256 / 360), false);
             ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
@@ -77,21 +93,20 @@ public class BarUtil {
     }
 
     public static void updateBar(Player p, String text, float healthPercent) {
-        if(dragons.containsKey(p.getName())) {
+        if(dragons.containsKey(p.getUniqueId().toString())) {
             DataWatcher watcher = new DataWatcher(null);
             watcher.a(0, (byte) 0x20); // invisible
             if (healthPercent != -1) {
                 watcher.a(6, (healthPercent / 100) * 200);
             }
             if (text != null) {
-                watcher.a(10, text);
                 watcher.a(2, text);
             }
             watcher.a(11, (byte) 1);
             watcher.a(3, (byte) 1);
             watcher.a(8, (byte) 0);
 
-            PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(dragons.get(p.getName()).getId(), watcher, true);
+            PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(dragons.get(p.getUniqueId().toString()).getId(), watcher, true);
             ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
         } else {
             setBar(p, text, healthPercent);

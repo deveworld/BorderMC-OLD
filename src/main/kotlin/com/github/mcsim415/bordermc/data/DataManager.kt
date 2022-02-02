@@ -75,15 +75,22 @@ class DataManager {
         BarUtil.removeBar(player)
         setGamePlayer(player, 0)
         player.removePotionEffect(PotionEffectType.INVISIBILITY)
-        getRoomWithPlayer(player)?.players?.remove(player)
+        val room = getRoomWithPlayer(player)
+        if (room != null) {
+            room.players.remove(player)
+            room.playingPlayers.remove(player)
+            if (room.players.size == 0) {
+                delRoom(room)
+            }
+        }
         giveMenu(player)
     }
 
-    fun giveMenu(player: Player) {
-        val replayItem = ItemStack(Material.COMPASS)
-        replayItem.itemMeta.lore = listOf("§fClick to play game")
-        replayItem.itemMeta.displayName = "§0Play Game"
-        player.inventory.setItem(0, ItemStack(Material.COMPASS))
+    private fun giveMenu(player: Player) {
+        val playItem = ItemStack(Material.COMPASS)
+        playItem.itemMeta.lore = listOf("§fClick to play game")
+        playItem.itemMeta.displayName = "§0Play Game"
+        player.inventory.setItem(0, playItem)
     }
 
     private fun addRoom(mapId: Int): UUID {
@@ -103,17 +110,18 @@ class DataManager {
     fun delRoom(room: Room) {
         val uuid = room.uuid
         try {
-            rooms.filterValues { it == room }.forEach { rooms.remove(it.key) }
+            rooms.remove(uuid)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Bukkit.getLogger().warning("Failed to delete room")
+            Bukkit.getLogger().warning(e.toString())
         }
         Bukkit.unloadWorld(Bukkit.getWorld(uuid.toString()), false)
         File(Bukkit.getWorldContainer(), uuid.toString()).deleteRecursively()
     }
 
     fun removeAllRooms() {
-        rooms.forEach {
-            delRoom(it.value)
+        rooms.values.forEach {
+            delRoom(it)
         }
     }
 

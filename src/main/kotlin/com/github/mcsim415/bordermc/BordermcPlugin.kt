@@ -5,6 +5,7 @@ import com.github.mcsim415.bordermc.data.DataManager
 import com.github.mcsim415.bordermc.event.*
 import com.github.mcsim415.bordermc.game.GameManager
 import com.github.mcsim415.bordermc.utils.ActionBar
+import com.github.mcsim415.bordermc.utils.BarUtil
 import org.bukkit.*
 import org.bukkit.block.Chest
 import org.bukkit.command.TabCompleter

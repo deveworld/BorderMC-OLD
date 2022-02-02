@@ -2,6 +2,7 @@ package com.github.mcsim415.bordermc.utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -81,21 +82,22 @@ public class ActionBar {
     public void sendActionBar(final Player player, final String message, int duration) {
         sendActionBar(player, message);
 
-//        if (duration >= 0) {
-//            // Sends empty message at the end of the duration. Allows messages shorter than 3 seconds, ensures precision.
-//            new BukkitRunnable() {
-//                @Override
-//                public void run() {
-//                    sendActionBar(player, "");
-//                }
-//            }.runTaskLater(instance, duration + 1);
-//        }
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                sendActionBar(player, message);
-            }
-        }.runTaskLater(instance, (long) duration);
+        if (duration >= 0 && !Objects.equals(message, "")) {
+            // Sends empty message at the end of the duration. Allows messages shorter than 3 seconds, ensures precision.
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    sendActionBar(player, "");
+                }
+            }.runTaskLater(instance, duration + 1);
+        }
+
+        // new BukkitRunnable() {
+        //     @Override
+        //     public void run() {
+        //         sendActionBar(player, message);
+        //     }
+        // }.runTaskLater(instance, (long) duration);
 
 //        // Re-sends the messages every 3 seconds so it doesn't go away from the player's screen.
 //        while (duration > 60) {

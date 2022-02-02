@@ -5,12 +5,15 @@ import com.github.mcsim415.bordermc.utils.ActionBar
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Material.*
+import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.block.Action
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerAnimationEvent
 import org.bukkit.event.player.PlayerAnimationType
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 
 
@@ -18,33 +21,40 @@ class Menu(private val plugin: BordermcPlugin): Listener {
     private val gameManager = plugin.gameManager
     private val dataManager = plugin.dataManager
 
-//    @EventHandler
-//    fun onInteract(event: PlayerInteractEvent) {
-//        val data = dataManager.getGamePlayer(event.player)
-//        if (data == 3 || data == 1) {
-//            if (event.action != Action.PHYSICAL) {
-//                if (event.item == ItemStack(PAPER)) {
-//                    onItemClick(event.player, 3)
-//                } else if (event.item == ItemStack(BED)) {
-//                    onItemClick(event.player, 1)
-//                }
-//            }
-//        } else if (data == 4 || data == 5) {
-//            if (event.action != Action.PHYSICAL) {
-//                if (event.item == ItemStack(PAPER) || event.item == ItemStack(BED)) {
-//                    onItemClick(event.player, 4)
-//                }
-//            }
-//        } else if (data == 0) {
-//            if (event.action != Action.PHYSICAL) {
-//                if (event.item == ItemStack(COMPASS)) {
-//                    onItemClick(player, 2)
-//                }
-//            }
-//        } else if (data != 2) {
-//            event.isCancelled = true
-//        }
-//    }
+    @EventHandler
+    fun onInteract(event: PlayerInteractEvent) {
+        val data = dataManager.getGamePlayer(event.player)
+        if (data != 2) {
+            val player = event.player
+            val action = event.action
+            if (event.item == null) {
+                event.isCancelled = true
+            } else {
+                val item = event.item.type
+                if (action != Action.LEFT_CLICK_BLOCK && action != Action.LEFT_CLICK_AIR) {
+                    onItemClick(player, data!!, item)
+                }
+            }
+        }
+    }
+
+    private fun onItemClick(player: Player, data: Int, item: Material) {
+        if (data == 3 || data == 1) {
+            if (item == PAPER) {
+                onItemClick(player, 3)
+            } else if (item == BED) {
+                onItemClick(player, 1)
+            }
+        } else if (data == 4 || data == 5) {
+            if (item == PAPER || item == BED) {
+                onItemClick(player, 4)
+            }
+        } else if (data == 0) {
+            if (item == COMPASS) {
+                onItemClick(player, 2)
+            }
+        }
+    }
 
     @EventHandler
     fun onClick(event: PlayerAnimationEvent) {
@@ -52,22 +62,8 @@ class Menu(private val plugin: BordermcPlugin): Listener {
             val player = event.player
             val data = dataManager.getGamePlayer(player)
             if (data != 2) {
-                val item = player.getTargetBlock(null as Set<Material>?, 5).type
-                if (data == 3 || data == 1) {
-                    if (item == PAPER) {
-                        onItemClick(player, 3)
-                    } else if (item == BED) {
-                        onItemClick(player, 1)
-                    }
-                } else if (data == 4 || data == 5) {
-                    if (item == PAPER || item == BED) {
-                        onItemClick(player, 4)
-                    }
-                } else if (data == 0) {
-                    if (item == COMPASS) {
-                        onItemClick(player, 2)
-                    }
-                }
+                val item = player.itemInHand.type
+                onItemClick(player, data!!, item)
             } else {
                 event.isCancelled = true
             }
@@ -138,11 +134,13 @@ class Menu(private val plugin: BordermcPlugin): Listener {
             event.isCancelled = true
             if (data == 0) {
                 val player = event.whoClicked as Player
-                when (event.currentItem.type) {
-                    BARRIER -> gameManager.joinGame(player)
-                    else -> return
+                if (event.currentItem != null) {
+                    when (event.currentItem.type) {
+                        BARRIER -> gameManager.joinGame(player)
+                        else -> return
+                    }
+                    player.closeInventory()
                 }
-                player.closeInventory()
             }
         }
     }

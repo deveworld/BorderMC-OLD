@@ -48,7 +48,7 @@ class GameManager(private val plugin: BordermcPlugin) {
             0 -> "City"
             else -> "None"
         }
-        var time = 10
+        var time = 5
         val taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, {
             sendScoreboard(room, getScoreboard(mapName, room.playingPlayers.size, time.toLong()), true)
             time--
@@ -56,10 +56,6 @@ class GameManager(private val plugin: BordermcPlugin) {
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, {
             Bukkit.getScheduler().cancelTask(taskID)
             room.state = 1
-            for (player in room.players) {
-                player.gameMode = GameMode.SURVIVAL
-                dataManager.setGamePlayer(player, 2)
-            }
             val world = Bukkit.getWorld(uuid.toString())
             val spreadRange = (-150..150)
 
@@ -72,14 +68,18 @@ class GameManager(private val plugin: BordermcPlugin) {
                         break
                     }
                 }
+                player.gameMode = GameMode.SURVIVAL
+                dataManager.setGamePlayer(player, 2)
+                player.inventory.clear()
+                player.inventory.armorContents = null
             }
             sendScoreboard(room, getScoreboard(mapName, room.playingPlayers.size, null, "§fRemain Players: §a${room.playingPlayers.size}"))
 
             when(room.map) {
                 0 -> {
-                    for (x in -6 until 6) {
-                        for (y in 98 until 104) {
-                            for (z in -6 until 6) {
+                    for (x in -6 until 7) {
+                        for (y in 98 until 105) {
+                            for (z in -6 until 7) {
                                 val block: Block = world.getBlockAt(x, y, z)
                                 block.type = Material.AIR
                             }
@@ -89,7 +89,7 @@ class GameManager(private val plugin: BordermcPlugin) {
             }
 
             changeWorldBorder(room, world, 0)
-        }, 20L * 11)
+        }, 20L * 6)
     }
 
     private fun changeWorldBorder(room: Room, world: World, phase: Int) {
@@ -135,8 +135,10 @@ class GameManager(private val plugin: BordermcPlugin) {
     private fun phase(room: Room, world: World, phase: Int, waitingTime: Long, size: Double, shrinkTime: Long, damageAmount: Double, warningDistance: Int) {
         val worldBorder = world.worldBorder
         var time = waitingTime.toInt()
-        for (player in room.players) {
-            BarUtil.setBar(player, "§fPhase $phase - Waiting shrink", 100f)
+        if (phase == 1) {
+            for (player in room.players) {
+                BarUtil.setBar(player, "§fPhase $phase - Waiting shrink", 100f)
+            }
         }
         var taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, {
             val percentage = (time.toFloat() / waitingTime.toFloat())*100f
@@ -150,6 +152,7 @@ class GameManager(private val plugin: BordermcPlugin) {
             Bukkit.getScheduler().cancelTask(taskID)
             for (player in room.players) {
                 BarUtil.removeBar(player)
+                BarUtil.setBar(player, "§fPhase $phase - Shrinking", 100f)
             }
 
             worldBorder.damageAmount = damageAmount
@@ -170,6 +173,9 @@ class GameManager(private val plugin: BordermcPlugin) {
                 Bukkit.getScheduler().cancelTask(taskID)
                 for (player in room.players) {
                     BarUtil.removeBar(player)
+                    if (phase == 6) {
+                        BarUtil.setBar(player, "§fPhase ${phase + 1} - Waiting shrink", 100f)
+                    }
                 }
                 changeWorldBorder(room, world, phase + 1)
             }, 20L * shrinkTime)
@@ -240,13 +246,13 @@ class GameManager(private val plugin: BordermcPlugin) {
             val replayItem = ItemStack(Material.PAPER)
             replayItem.itemMeta.lore = listOf("§fClick to replay")
             replayItem.itemMeta.displayName = "§0Replay"
-            player.inventory.setItem(6, ItemStack(Material.PAPER))
+            player.inventory.setItem(6, replayItem)
         }
 
         val quitItem = ItemStack(Material.BED)
         quitItem.itemMeta.lore = listOf("§fClick to quit")
         quitItem.itemMeta.displayName = "§0Quit"
-        player.inventory.setItem(8, ItemStack(Material.BED))
+        player.inventory.setItem(8, quitItem)
     }
     
     private fun onWin(room: Room) {
