@@ -22,15 +22,7 @@ class PlayerData(plugin: BordermcPlugin): Listener {
         val room = dataManager.getRoomWithPlayer(player)
         dataManager.delGamePlayer(player)
         if (room != null) {
-            room.players.remove(player)
-            room.playingPlayers.remove(player)
-            if (room.players.size == 0) {
-                dataManager.delRoom(room)
-            } else {
-                if (room.state == 1) {
-                    gameManager.onDeath("Quit", player)
-                }
-            }
+            gameManager.onQuit(player)
             BarUtil.removeBar(player)
         }
     }

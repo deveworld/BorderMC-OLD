@@ -20,15 +20,32 @@ class GameManager(private val plugin: BordermcPlugin) {
     private val dataManager = plugin.dataManager
 
     private fun updateRoom(uuid: UUID) {
-        val room = dataManager.getRoom(uuid)
-        val mapName = when(room!!.map) {
-            0 -> "City"
-            else -> "None"
-        }
+        val room = dataManager.getRoom(uuid)!!
         if (room.players.size == 12) {
             startGame(uuid)
         } else {
-            sendScoreboard(room, getScoreboard(mapName, room.playingPlayers.size))
+            sendScoreboard(room, getScoreboard(room.getMapName(), room.playingPlayers.size))
+        }
+    }
+
+    fun onQuit(player: Player) {
+        val room = dataManager.getRoomWithPlayer(player)!!
+        if (room.state == 2) {
+            room.players.remove(player)
+            room.playingPlayers.remove(player)
+            if (room.playingPlayers.size != 0) {
+                for (players in room.players) {
+                    players.sendMessage("§f${player.name} §fhas left the game")
+                }
+            }
+            if (room.playingPlayers.size == 1) {
+                onWin(room)
+            } else if (room.playingPlayers.size == 0) {
+                dataManager.delRoom(room)
+            }
+        } else {
+            room.state = 0
+            sendScoreboard(room, getScoreboard(room.getMapName(), room.playingPlayers.size))
         }
     }
 
@@ -44,52 +61,53 @@ class GameManager(private val plugin: BordermcPlugin) {
     }
 
     fun startGame(uuid: UUID) {
-        val room = dataManager.getRoom(uuid)
-        val mapName = when(room!!.map) {
-            0 -> "City"
-            else -> "None"
-        }
+        val room = dataManager.getRoom(uuid)!!
+        room.state = 1
         var time = 5
+        val mapName = room.getMapName()
         val taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, {
             sendScoreboard(room, getScoreboard(mapName, room.playingPlayers.size, time.toLong()), true)
             time--
         }, 0L, 20L)
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, {
             Bukkit.getScheduler().cancelTask(taskID)
-            room.state = 1
-            val world = Bukkit.getWorld(uuid.toString())
-            val spreadRange = (-150..150)
+            if (room.state == 1) {
+                val world = Bukkit.getWorld(uuid.toString())
+                val spreadRange = (-150..150)
 
-            for (player in room.players) {
-                val x = spreadRange.random(); val z = spreadRange.random()
-                for (y in 20 downTo 1) {
-                    val block = world.getBlockAt(x, y, z)
-                    if (block.type != Material.AIR) {
-                        player.teleport(block.location.add(0.5, 1.0, 0.5), PlayerTeleportEvent.TeleportCause.COMMAND)
-                        break
+                for (player in room.players) {
+                    val x = spreadRange.random(); val z = spreadRange.random()
+                    for (y in 20 downTo 1) {
+                        val block = world.getBlockAt(x, y, z)
+                        if (block.type != Material.AIR) {
+                            player.teleport(block.location.add(0.5, 1.0, 0.5), PlayerTeleportEvent.TeleportCause.COMMAND)
+                            break
+                        }
                     }
+                    player.gameMode = GameMode.SURVIVAL
+                    dataManager.setGamePlayer(player, 2)
+                    player.inventory.clear()
+                    player.inventory.armorContents = null
                 }
-                player.gameMode = GameMode.SURVIVAL
-                dataManager.setGamePlayer(player, 2)
-                player.inventory.clear()
-                player.inventory.armorContents = null
-            }
-            sendScoreboard(room, getScoreboard(mapName, room.playingPlayers.size, null, "§fRemain Players: §a${room.playingPlayers.size}"))
+                sendScoreboard(room, getScoreboard(mapName, room.playingPlayers.size, null, "§fRemain Players: §a${room.playingPlayers.size}"))
 
-            when(room.map) {
-                0 -> {
-                    for (x in -6..6) {
-                        for (y in 98..104) {
-                            for (z in -6..6) {
-                                val block: Block = world.getBlockAt(x, y, z)
-                                block.type = Material.AIR
+                when(room.map) {
+                    0 -> {
+                        for (x in -6..6) {
+                            for (y in 98..104) {
+                                for (z in -6..6) {
+                                    val block: Block = world.getBlockAt(x, y, z)
+                                    block.type = Material.AIR
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            changeWorldBorder(room, world, 0)
+                changeWorldBorder(room, world, 0)
+            } else {
+                sendScoreboard(room, getScoreboard(mapName, room.playingPlayers.size))
+            }
         }, 20L * 6)
     }
 

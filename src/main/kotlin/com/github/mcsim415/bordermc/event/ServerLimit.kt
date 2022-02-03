@@ -63,6 +63,7 @@ class ServerLimit(plugin: BordermcPlugin): Listener {
     @EventHandler
     fun onCraft(event: CraftItemEvent) {
         event.isCancelled = true
+        event.view.player.closeInventory()
     }
 
     @EventHandler
