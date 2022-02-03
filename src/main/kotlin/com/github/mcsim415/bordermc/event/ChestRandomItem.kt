@@ -27,7 +27,7 @@ class ChestRandomItem(private val plugin: BordermcPlugin): Listener {
     }
 
     private fun fillChest(chest: Chest) {
-        val items = randomItem((3..5).random())
+        val items = randomItem((3..7).random())
         chest.blockInventory.clear()
         val random = (0..26).toMutableList()
         for (item in items) {
@@ -41,8 +41,8 @@ class ChestRandomItem(private val plugin: BordermcPlugin): Listener {
         val items: MutableList<ItemStack> = mutableListOf()
         var item: ItemStack
         for (i in 1 until amount) {
-            item = when((1..6).random()) { // 무기, 방어, 아이템
-                1 -> when((1..11).random()) { // 나무, 돌, 철, 금, 다이아
+            item = when((1..8).random()) { // 무기, 건설, 방어, 아이템
+                1 -> when((1..12).random()) { // 나무, 돌, 철, 금, 다이아, 활
                     1, 2, 3 -> when((1..3).random()) { // 나무 검, 나무 도끼
                         1, 2 -> ItemStack(Material.WOOD_SWORD)
                         3 -> ItemStack(Material.WOOD_AXE)
@@ -68,43 +68,54 @@ class ChestRandomItem(private val plugin: BordermcPlugin): Listener {
                         3 -> ItemStack(Material.DIAMOND_AXE)
                         else -> ItemStack(Material.AIR)
                     }
+                    12 -> ItemStack(Material.BOW)
                     else -> ItemStack(Material.AIR)
                 }
                 2, 3 -> when((1..8).random()) { // 가죽, 금, 철, 다이아
                     1, 2, 3 -> when((1..7).random()) { // 가죽 헬멧, 가죽 경갑, 가죽 다리보호구, 가죽 부츠
                         1, 2, 3 -> ItemStack(Material.LEATHER_HELMET)
                         4 -> ItemStack(Material.LEATHER_CHESTPLATE)
-                        5, 6 -> ItemStack(Material.LEATHER_LEGGINGS)
-                        7 -> ItemStack(Material.LEATHER_BOOTS)
+                        5 -> ItemStack(Material.LEATHER_LEGGINGS)
+                        6, 7 -> ItemStack(Material.LEATHER_BOOTS)
                         else -> ItemStack(Material.AIR)
                     }
                     4, 5 -> when((1..7).random()) { // 금 헬멧, 금 경갑, 금 다리보호구, 금 부츠
                         1, 2, 3 -> ItemStack(Material.GOLD_HELMET)
                         4 -> ItemStack(Material.GOLD_CHESTPLATE)
-                        5, 6 -> ItemStack(Material.GOLD_LEGGINGS)
-                        7 -> ItemStack(Material.GOLD_BOOTS)
+                        5 -> ItemStack(Material.GOLD_LEGGINGS)
+                        6, 7 -> ItemStack(Material.GOLD_BOOTS)
                         else -> ItemStack(Material.AIR)
                     }
                     6, 7 -> when((1..7).random()) { // 철 헬멧, 철 경갑, 철 다리보호구, 철 부츠
                         1, 2, 3 -> ItemStack(Material.IRON_HELMET)
                         4 -> ItemStack(Material.IRON_CHESTPLATE)
-                        5, 6 -> ItemStack(Material.IRON_LEGGINGS)
-                        7 -> ItemStack(Material.IRON_BOOTS)
+                        5 -> ItemStack(Material.IRON_LEGGINGS)
+                        6, 7 -> ItemStack(Material.IRON_BOOTS)
                         else -> ItemStack(Material.AIR)
                     }
                     8 -> when((1..7).random()) { // 다이아 헬멧, 다이아 경갑, 다이아 다리보호구, 다이아 부츠
                         1, 2, 3 -> ItemStack(Material.DIAMOND_HELMET)
                         4 -> ItemStack(Material.DIAMOND_CHESTPLATE)
-                        5, 6 -> ItemStack(Material.DIAMOND_LEGGINGS)
-                        7 -> ItemStack(Material.DIAMOND_BOOTS)
+                        5 -> ItemStack(Material.DIAMOND_LEGGINGS)
+                        6, 7 -> ItemStack(Material.DIAMOND_BOOTS)
                         else -> ItemStack(Material.AIR)
                     }
                     else -> ItemStack(Material.AIR)
                 }
-                4, 5, 6 -> when((1..5).random()) {
+                4, 5 -> when((1..12).random()) { // 나무, 돌, 철, 금, 다이아, 가위
+                    1, 2, 3 -> ItemStack(Material.WOOD_PICKAXE)
+                    4, 5, 6 -> ItemStack(Material.STONE_PICKAXE)
+                    7, 8 -> ItemStack(Material.GOLD_PICKAXE)
+                    9, 10 -> ItemStack(Material.IRON_PICKAXE)
+                    11 -> ItemStack(Material.DIAMOND_PICKAXE)
+                    12 -> ItemStack(Material.SHEARS)
+                    else -> ItemStack(Material.AIR)
+                }
+                6, 7, 8 -> when((1..6).random()) {
                     1, 2 -> ItemStack(Material.PAPER)
-                    3, 4 -> ItemStack(Material.COOKED_BEEF, 16)
-                    5 -> ItemStack(Material.WOOL, 32)
+                    3, 4 -> ItemStack(Material.COOKED_BEEF, 8)
+                    5 -> ItemStack(Material.WOOL, 16)
+                    6 -> ItemStack(Material.ARROW, 8)
                     else -> ItemStack(Material.AIR)
                 }
                 else -> ItemStack(Material.AIR)
