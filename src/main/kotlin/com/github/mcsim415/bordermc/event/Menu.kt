@@ -5,7 +5,6 @@ import com.github.mcsim415.bordermc.utils.ActionBar
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Material.*
-import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -27,9 +26,8 @@ class Menu(private val plugin: BordermcPlugin): Listener {
         if (data != 2) {
             val player = event.player
             val action = event.action
-            if (event.item == null) {
-                event.isCancelled = true
-            } else {
+            event.isCancelled = true
+            if (event.item != null) {
                 val item = event.item.type
                 if (action != Action.LEFT_CLICK_BLOCK && action != Action.LEFT_CLICK_AIR) {
                     onItemClick(player, data!!, item)
@@ -64,8 +62,6 @@ class Menu(private val plugin: BordermcPlugin): Listener {
             if (data != 2) {
                 val item = player.itemInHand.type
                 onItemClick(player, data!!, item)
-            } else {
-                event.isCancelled = true
             }
         }
     }
@@ -134,12 +130,12 @@ class Menu(private val plugin: BordermcPlugin): Listener {
             event.isCancelled = true
             if (data == 0) {
                 val player = event.whoClicked as Player
+                player.closeInventory()
                 if (event.currentItem != null) {
                     when (event.currentItem.type) {
                         BARRIER -> gameManager.joinGame(player)
                         else -> return
                     }
-                    player.closeInventory()
                 }
             }
         }

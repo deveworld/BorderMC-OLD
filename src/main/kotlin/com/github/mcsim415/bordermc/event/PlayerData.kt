@@ -2,16 +2,10 @@ package com.github.mcsim415.bordermc.event
 
 import com.github.mcsim415.bordermc.BordermcPlugin
 import com.github.mcsim415.bordermc.utils.BarUtil
-import org.bukkit.Bukkit
-import org.bukkit.GameMode
-import org.bukkit.Location
-import org.bukkit.Material
-import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.inventory.ItemStack
 
 class PlayerData(plugin: BordermcPlugin): Listener {
     private val dataManager = plugin.dataManager
