@@ -13,6 +13,7 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.scoreboard.Scoreboard
 import java.util.*
+import kotlin.math.abs
 
 
 class GameManager(private val plugin: BordermcPlugin) {
@@ -77,9 +78,9 @@ class GameManager(private val plugin: BordermcPlugin) {
 
             when(room.map) {
                 0 -> {
-                    for (x in -6 until 7) {
-                        for (y in 98 until 105) {
-                            for (z in -6 until 7) {
+                    for (x in -6..6) {
+                        for (y in 98..104) {
+                            for (z in -6..6) {
                                 val block: Block = world.getBlockAt(x, y, z)
                                 block.type = Material.AIR
                             }
@@ -155,10 +156,7 @@ class GameManager(private val plugin: BordermcPlugin) {
                 BarUtil.setBar(player, "§fPhase $phase - Shrinking", 100f)
             }
 
-            worldBorder.damageAmount = damageAmount
-            worldBorder.warningDistance = warningDistance
-            worldBorder.center = newCenter(worldBorder.size, worldBorder.center, size)
-            worldBorder.setSize(size, shrinkTime)
+            moveWorldBorder(worldBorder, size, shrinkTime, damageAmount, warningDistance)
 
             time = shrinkTime.toInt()
             taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, {
@@ -173,13 +171,44 @@ class GameManager(private val plugin: BordermcPlugin) {
                 Bukkit.getScheduler().cancelTask(taskID)
                 for (player in room.players) {
                     BarUtil.removeBar(player)
-                    if (phase == 6) {
+                    if (phase != 6) {
                         BarUtil.setBar(player, "§fPhase ${phase + 1} - Waiting shrink", 100f)
                     }
                 }
                 changeWorldBorder(room, world, phase + 1)
             }, 20L * shrinkTime)
         }, 20L * waitingTime)
+    }
+
+    private fun moveWorldBorder(worldBorder: WorldBorder, size: Double, shrinkTime: Long, damageAmount: Double, warningDistance: Int) {
+        worldBorder.damageAmount = damageAmount
+        worldBorder.warningDistance = warningDistance
+
+        val renewalTime = shrinkTime / 3 //       shrinkTime / 0.15 sec ==> shrink center renewal time
+        val newCenter = newCenter(worldBorder.size, worldBorder.center, size)
+        val gapX = abs(worldBorder.center.x - newCenter.x)
+        val gapZ = abs(worldBorder.center.z -  newCenter.z)
+        val renewalX = gapX / renewalTime //      move center per 0.15 sec
+        val renewalZ = gapZ / renewalTime
+        val signX = (worldBorder.center.x > newCenter.x)
+        val signZ = (worldBorder.center.z > newCenter.z)
+
+        worldBorder.setSize(size, shrinkTime)
+        for (i in 1..renewalTime) {
+            val x = if (signX) {
+                worldBorder.center.x - renewalX * i
+            } else {
+                worldBorder.center.x + renewalX * i
+            }
+            val z = if (signZ) {
+                worldBorder.center.z - renewalZ * i
+            } else {
+                worldBorder.center.z + renewalZ * i
+            }
+            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, {
+                worldBorder.setCenter(x, z)
+            }, i * 3)
+        }
     }
 
     private fun newCenter(size: Double, center: Location, newSize: Double): Location {
