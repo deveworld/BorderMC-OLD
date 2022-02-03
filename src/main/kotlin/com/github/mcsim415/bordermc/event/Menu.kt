@@ -60,8 +60,10 @@ class Menu(private val plugin: BordermcPlugin): Listener {
             val player = event.player
             val data = dataManager.getGamePlayer(player)
             if (data != 2) {
-                val item = player.itemInHand.type
-                onItemClick(player, data!!, item)
+                if (player.itemInHand != null) {
+                    val item = player.itemInHand.type
+                    onItemClick(player, data!!, item)
+                }
             }
         }
     }

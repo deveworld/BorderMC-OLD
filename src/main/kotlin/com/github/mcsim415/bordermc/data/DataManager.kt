@@ -43,18 +43,6 @@ class DataManager {
         gamePlayers[player.uniqueId] = int
     }
 
-    fun delGamePlayer(player: Player) {
-        gamePlayers.remove(player.uniqueId)
-        for (room in rooms) {
-            if (room.value.players.contains(player)) {
-                room.value.players.remove(player)
-            }
-            if (room.value.playingPlayers.contains(player)) {
-                room.value.playingPlayers.remove(player)
-            }
-        }
-    }
-
     fun getGamePlayer(player: Player): Int? {
         return gamePlayers[player.uniqueId]
     }
@@ -109,6 +97,9 @@ class DataManager {
 
     fun delRoom(room: Room) {
         val uuid = room.uuid
+        if (room.taskID != -1) {
+            Bukkit.getScheduler().cancelTask(room.taskID)
+        }
         try {
             rooms.remove(uuid)
         } catch (e: Exception) {

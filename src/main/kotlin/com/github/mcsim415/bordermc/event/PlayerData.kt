@@ -20,7 +20,6 @@ class PlayerData(plugin: BordermcPlugin): Listener {
     fun onQuit(event: PlayerQuitEvent) {
         val player = event.player
         val room = dataManager.getRoomWithPlayer(player)
-        dataManager.delGamePlayer(player)
         if (room != null) {
             gameManager.onQuit(player)
             BarUtil.removeBar(player)
