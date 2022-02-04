@@ -1,15 +1,12 @@
 package com.github.mcsim415.bordermc.utils;
 
 import net.minecraft.server.v1_8_R3.*;
-import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -67,25 +64,15 @@ public class BarUtil {
     }
 
     public static void removeBar(Player p) {
-        if(dragons.containsKey(p.getUniqueId().toString())) {
+        if(existsBar(p)) {
             PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(dragons.get(p.getUniqueId().toString()).getId());
             dragons.remove(p.getUniqueId().toString());
             ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
         }
     }
 
-    public static void teleportBar(Player p) {
-        if(dragons.containsKey(p.getUniqueId().toString())) {
-            Location loc = p.getLocation();
-            PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport(dragons.get(p.getUniqueId().toString()).getId(),
-                    (int) loc.getX() * 32, (int) (loc.getY() - 100) * 32, (int) loc.getZ() * 32,
-                    (byte) ((int) loc.getYaw() * 256 / 360), (byte) ((int) loc.getPitch() * 256 / 360), false);
-            ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
-        }
-    }
-
-    public static void updateText(Player p, String text) {
-        updateBar(p, text, -1);
+    public static Boolean existsBar(Player p) {
+        return dragons.containsKey(p.getUniqueId().toString());
     }
 
     public static void updateHealth(Player p, float healthPercent) {
@@ -93,7 +80,7 @@ public class BarUtil {
     }
 
     public static void updateBar(Player p, String text, float healthPercent) {
-        if(dragons.containsKey(p.getUniqueId().toString())) {
+        if(existsBar(p)) {
             DataWatcher watcher = new DataWatcher(null);
             watcher.a(0, (byte) 0x20); // invisible
             if (healthPercent != -1) {
@@ -111,16 +98,6 @@ public class BarUtil {
         } else {
             setBar(p, text, healthPercent);
         }
-    }
-
-    public static Set<String> getPlayers() {
-        Set<String> set = new HashSet<>();
-
-        for(Map.Entry<String, EntityEnderDragon> entry : dragons.entrySet()) {
-            set.add(entry.getKey());
-        }
-
-        return set;
     }
 
 }

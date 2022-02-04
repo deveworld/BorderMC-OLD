@@ -43,8 +43,11 @@ class DataManager {
         gamePlayers[player.uniqueId] = int
     }
 
-    fun getGamePlayer(player: Player): Int? {
-        return gamePlayers[player.uniqueId]
+    fun getGamePlayer(player: Player): Int {
+        if (gamePlayers[player.uniqueId] == null) {
+            setGamePlayer(player, 0)
+        }
+        return gamePlayers[player.uniqueId]!!
     }
 
     fun respawn(player: Player, teleport: Boolean = true) {

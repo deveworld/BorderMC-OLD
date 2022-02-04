@@ -151,21 +151,30 @@ class GameManager(private val plugin: BordermcPlugin) {
         }
     }
 
+    private fun updateBar(room: Room, loadTime: Long) {
+        var time = loadTime
+        room.taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, {
+            val percentage = (time.toFloat() / loadTime.toFloat())*100f
+            for (player in room.players) {
+                if (player.isOnline && BarUtil.existsBar(player)) {
+                    BarUtil.updateHealth(player, percentage)
+                } else {
+                    dataManager.delRoom(room)
+                    break
+                }
+            }
+            time -= 1
+        }, 0L, 20L)
+    }
+
     private fun phase(room: Room, world: World, phase: Int, waitingTime: Long, size: Double, shrinkTime: Long, damageAmount: Double, warningDistance: Int) {
         val worldBorder = world.worldBorder
-        var time = waitingTime.toInt()
         if (phase == 1) {
             for (player in room.players) {
                 BarUtil.setBar(player, "§fPhase $phase - Waiting shrink", 100f)
             }
         }
-        room.taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, {
-            val percentage = (time.toFloat() / waitingTime.toFloat())*100f
-            for (player in room.players) {
-                BarUtil.updateHealth(player, percentage)
-            }
-            time -= 1
-        }, 0L, 20L)
+        updateBar(room, waitingTime)
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, {
             if (room.taskID != -1) {
@@ -178,16 +187,7 @@ class GameManager(private val plugin: BordermcPlugin) {
 
                 moveWorldBorder(worldBorder, size, shrinkTime, damageAmount, warningDistance)
 
-                time = shrinkTime.toInt()
-                room.taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, {
-                    val percentage = (time.toFloat() / shrinkTime.toFloat())*100f
-                    for (player in room.players) {
-                        if (player.isOnline) {
-                            BarUtil.updateHealth(player, percentage)
-                        }
-                    }
-                    time -= 1
-                }, 0L, 20L)
+                updateBar(room, shrinkTime)
 
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, {
                     if (room.taskID != -1) {
@@ -217,12 +217,9 @@ class GameManager(private val plugin: BordermcPlugin) {
         val renewalX = (worldBorder.center.x - newCenter.x) / renewalTime //      move center per 0.1 sec
         val renewalZ = (worldBorder.center.z - newCenter.z) / renewalTime
 
-        plugin.logger.info("New Center: ${newCenter.x}, ${newCenter.z}")
-        plugin.logger.info("Renewal Center: $renewalX, $renewalZ")
         worldBorder.setSize(size, shrinkTime)
         for (i in 1..renewalTime) {
             Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, {
-                plugin.logger.info("$i - Renewal Center: ${x - renewalX * i}, ${z - renewalZ * i}")
                 worldBorder.setCenter(x - (renewalX * i), z - (renewalZ * i))
             }, i * 2L)
         }

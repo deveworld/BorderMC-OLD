@@ -30,7 +30,7 @@ class Menu(private val plugin: BordermcPlugin): Listener {
             if (event.item != null) {
                 val item = event.item.type
                 if (action != Action.LEFT_CLICK_BLOCK && action != Action.LEFT_CLICK_AIR) {
-                    onItemClick(player, data!!, item)
+                    onItemClick(player, data, item)
                 }
             }
         }
@@ -62,7 +62,7 @@ class Menu(private val plugin: BordermcPlugin): Listener {
             if (data != 2) {
                 if (player.itemInHand != null) {
                     val item = player.itemInHand.type
-                    onItemClick(player, data!!, item)
+                    onItemClick(player, data, item)
                 }
             }
         }

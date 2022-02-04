@@ -18,6 +18,7 @@ class BordermcPlugin: JavaPlugin(), Listener {
         gameManager = GameManager(this)
 
         server.pluginManager.registerEvents(this, this)
+        server.pluginManager.registerEvents(MapRender(this), this)
         server.pluginManager.registerEvents(Menu(this), this)
         server.pluginManager.registerEvents(PlayerData(this), this)
         server.pluginManager.registerEvents(PlayerDeath(this), this)
