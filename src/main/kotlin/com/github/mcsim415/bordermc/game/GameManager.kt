@@ -341,7 +341,7 @@ class GameManager(private val plugin: BordermcPlugin) {
 
     private fun getScoreboard(mapName: String, players: Int, remainTime: Long? = null, customText: String? = null): Scoreboard {
         val scoreboardWrapper = ScoreboardWrapper("§l§eBorderMC")
-        scoreboardWrapper.addLine("§702/03/2022")
+        scoreboardWrapper.addLine("§702/04/2022")
         scoreboardWrapper.addBlankSpace()
         scoreboardWrapper.addLine("§fMap: §a$mapName")
         if (customText === null) {
@@ -361,7 +361,7 @@ class GameManager(private val plugin: BordermcPlugin) {
             scoreboardWrapper.addLine(customText)
         }
         scoreboardWrapper.addBlankSpace()
-        scoreboardWrapper.addLine("§eborder.kro.kr")
+        scoreboardWrapper.addLine("§ebordermc.games")
         return scoreboardWrapper.getScoreboard()
     }
 }
