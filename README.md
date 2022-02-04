@@ -11,5 +11,7 @@ In Korean, \
 **절대 여기에 있는 코드 일부 또는 전체를 저작권자의 허가없이 복제하거나 사용하지 마십시오.** \
 **그러한 행동은 불법입니다.**
 
-## Copyright
+## Credit(Copyrights)
 © 2022 World <simworld415@gmail.com>
+
+Special Thanks to @zlfn (Test this plugin)
