@@ -52,34 +52,34 @@ class PlayerDeath(plugin: BordermcPlugin): Listener {
                 if (victim.health - event.finalDamage <= 0) {
                     event.isCancelled = true
                     val border = checkPlayerOut(event.entity as Player)
+                    val cause: String = when (event.cause) {
+                        EntityDamageEvent.DamageCause.CONTACT -> "Contact"
+                        EntityDamageEvent.DamageCause.ENTITY_ATTACK -> "Entity Attack"
+                        EntityDamageEvent.DamageCause.PROJECTILE -> "Projectile"
+                        EntityDamageEvent.DamageCause.SUFFOCATION -> "Suffocation"
+                        EntityDamageEvent.DamageCause.FALL -> "Fall"
+                        EntityDamageEvent.DamageCause.FIRE -> "Fire"
+                        EntityDamageEvent.DamageCause.FIRE_TICK -> "Fire Tick"
+                        EntityDamageEvent.DamageCause.MELTING -> "Melting"
+                        EntityDamageEvent.DamageCause.LAVA -> "Lava"
+                        EntityDamageEvent.DamageCause.DROWNING -> "Drowning"
+                        EntityDamageEvent.DamageCause.BLOCK_EXPLOSION -> "Explosion"
+                        EntityDamageEvent.DamageCause.ENTITY_EXPLOSION -> "Entity Explosion"
+                        EntityDamageEvent.DamageCause.VOID -> "Void"
+                        EntityDamageEvent.DamageCause.LIGHTNING -> "Lightning"
+                        EntityDamageEvent.DamageCause.SUICIDE -> return
+                        EntityDamageEvent.DamageCause.STARVATION -> "Starvation"
+                        EntityDamageEvent.DamageCause.POISON -> "Poison"
+                        EntityDamageEvent.DamageCause.MAGIC -> "Magic"
+                        EntityDamageEvent.DamageCause.WITHER -> "Wither"
+                        EntityDamageEvent.DamageCause.FALLING_BLOCK -> "Falling Block"
+                        EntityDamageEvent.DamageCause.THORNS -> "Thorns"
+                        EntityDamageEvent.DamageCause.CUSTOM -> "Custom"
+                        else -> "Unknown"
+                    }
                     if (border) {
                         gameManager.onDeath("Outside the border", victim)
                     } else {
-                        val cause: String = when (event.cause) {
-                            EntityDamageEvent.DamageCause.CONTACT -> "Contact"
-                            EntityDamageEvent.DamageCause.ENTITY_ATTACK -> "Entity Attack"
-                            EntityDamageEvent.DamageCause.PROJECTILE -> "Projectile"
-                            EntityDamageEvent.DamageCause.SUFFOCATION -> "Suffocation"
-                            EntityDamageEvent.DamageCause.FALL -> "Fall"
-                            EntityDamageEvent.DamageCause.FIRE -> "Fire"
-                            EntityDamageEvent.DamageCause.FIRE_TICK -> "Fire Tick"
-                            EntityDamageEvent.DamageCause.MELTING -> "Melting"
-                            EntityDamageEvent.DamageCause.LAVA -> "Lava"
-                            EntityDamageEvent.DamageCause.DROWNING -> "Drowning"
-                            EntityDamageEvent.DamageCause.BLOCK_EXPLOSION -> "Explosion"
-                            EntityDamageEvent.DamageCause.ENTITY_EXPLOSION -> "Entity Explosion"
-                            EntityDamageEvent.DamageCause.VOID -> "Void"
-                            EntityDamageEvent.DamageCause.LIGHTNING -> "Lightning"
-                            EntityDamageEvent.DamageCause.SUICIDE -> "Suicide"
-                            EntityDamageEvent.DamageCause.STARVATION -> "Starvation"
-                            EntityDamageEvent.DamageCause.POISON -> "Poison"
-                            EntityDamageEvent.DamageCause.MAGIC -> "Magic"
-                            EntityDamageEvent.DamageCause.WITHER -> "Wither"
-                            EntityDamageEvent.DamageCause.FALLING_BLOCK -> "Falling Block"
-                            EntityDamageEvent.DamageCause.THORNS -> "Thorns"
-                            EntityDamageEvent.DamageCause.CUSTOM -> "Custom"
-                            else -> "Unknown"
-                        }
                         gameManager.onDeath(cause, victim)
                     }
                 }
