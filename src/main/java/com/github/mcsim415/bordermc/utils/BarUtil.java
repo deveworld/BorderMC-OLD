@@ -95,8 +95,6 @@ public class BarUtil {
 
             PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(dragons.get(p.getUniqueId().toString()).getId(), watcher, true);
             ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
-        } else {
-            setBar(p, text, healthPercent);
         }
     }
 

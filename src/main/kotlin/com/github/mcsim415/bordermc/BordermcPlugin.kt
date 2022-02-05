@@ -31,8 +31,8 @@ class BordermcPlugin: JavaPlugin(), Listener {
         getCommand("bmdev")!!.executor = BordermcCommand(this)
         getCommand("bmdev")!!.tabCompleter = voidTabCompleter
 
-        val world: World = Bukkit.getWorld("world")!!
-        world.isAutoSave = false
+//        val world: World = Bukkit.getWorld("world")!!
+//        world.isAutoSave = false
     }
 
     override fun onDisable() {

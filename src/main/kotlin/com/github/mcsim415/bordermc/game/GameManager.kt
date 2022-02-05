@@ -28,23 +28,25 @@ class GameManager(private val plugin: BordermcPlugin) {
     }
 
     fun onQuit(player: Player) {
-        val room = dataManager.getRoomWithPlayer(player)!!
-        if (room.state == 2) {
-            room.players.remove(player)
-            room.playingPlayers.remove(player)
-            if (room.playingPlayers.size != 0) {
-                for (players in room.players) {
-                    players.sendMessage("§f${player.name} §fhas left the game")
+        val room = dataManager.getRoomWithPlayer(player)
+        if (room != null) {
+            if (room.state == 2) {
+                room.players.remove(player)
+                room.playingPlayers.remove(player)
+                if (room.playingPlayers.size != 0) {
+                    for (players in room.players) {
+                        players.sendMessage("§f${player.name} §fhas left the game")
+                    }
                 }
+                if (room.playingPlayers.size == 1) {
+                    onWin(room)
+                } else if (room.playingPlayers.size == 0) {
+                    dataManager.delRoom(room)
+                }
+            } else {
+                room.state = 0
+                sendScoreboard(room, getScoreboard(room.getMapName(), room.playingPlayers.size))
             }
-            if (room.playingPlayers.size == 1) {
-                onWin(room)
-            } else if (room.playingPlayers.size == 0) {
-                dataManager.delRoom(room)
-            }
-        } else {
-            room.state = 0
-            sendScoreboard(room, getScoreboard(room.getMapName(), room.playingPlayers.size))
         }
     }
 
@@ -240,35 +242,39 @@ class GameManager(private val plugin: BordermcPlugin) {
     }
 
     fun onKill(killer: Player, victim: Player) {
-        val room = dataManager.getRoomWithPlayer(killer)!!
+        val room = dataManager.getRoomWithPlayer(killer)
         spectate(victim)
-        room.playingPlayers.remove(victim)
-        val scoreboard = getScoreboard(room.getMapName(), room.playingPlayers.size, null, "§fRemain Players: §a${room.playingPlayers.size}")
-        firework(killer)
-        for (player in room.players) {
-            player.scoreboard = scoreboard
-            player.sendMessage("§f${killer.name} §fhas killed §f${victim.name}")
-        }
-        if (room.playingPlayers.size == 1) {
-            onWin(room)
-        } else if (room.playingPlayers.size == 0) {
-            dataManager.delRoom(room)
+        if (room != null) {
+            room.playingPlayers.remove(victim)
+            val scoreboard = getScoreboard(room.getMapName(), room.playingPlayers.size, null, "§fRemain Players: §a${room.playingPlayers.size}")
+            firework(killer)
+            for (player in room.players) {
+                player.scoreboard = scoreboard
+                player.sendMessage("§f${killer.name} §fhas killed §f${victim.name}")
+            }
+            if (room.playingPlayers.size == 1) {
+                onWin(room)
+            } else if (room.playingPlayers.size == 0) {
+                dataManager.delRoom(room)
+            }
         }
     }
 
     fun onDeath(cause: String, victim: Player) {
-        val room = dataManager.getRoomWithPlayer(victim)!!
+        val room = dataManager.getRoomWithPlayer(victim)
         spectate(victim)
-        room.playingPlayers.remove(victim)
-        val scoreboard = getScoreboard(room.getMapName(), room.playingPlayers.size, null, "§fRemain Players: §a${room.playingPlayers.size}")
-        for (player in room.players) {
-            player.scoreboard = scoreboard
-            player.sendMessage("§f${victim.name} §fhas died because of §f$cause")
-        }
-        if (room.playingPlayers.size == 1) {
-            onWin(room)
-        } else if (room.playingPlayers.size == 0) {
-            dataManager.delRoom(room)
+        if (room != null) {
+            room.playingPlayers.remove(victim)
+            val scoreboard = getScoreboard(room.getMapName(), room.playingPlayers.size, null, "§fRemain Players: §a${room.playingPlayers.size}")
+            for (player in room.players) {
+                player.scoreboard = scoreboard
+                player.sendMessage("§f${victim.name} §fhas died because of §f$cause")
+            }
+            if (room.playingPlayers.size == 1) {
+                onWin(room)
+            } else if (room.playingPlayers.size == 0) {
+                dataManager.delRoom(room)
+            }
         }
     }
 
@@ -338,7 +344,7 @@ class GameManager(private val plugin: BordermcPlugin) {
 
     private fun getScoreboard(mapName: String, players: Int, remainTime: Long? = null, customText: String? = null): Scoreboard {
         val scoreboardWrapper = ScoreboardWrapper("§l§eBorderMC")
-        scoreboardWrapper.addLine("§702/04/2022")
+        scoreboardWrapper.addLine("§702/05/2022")
         scoreboardWrapper.addBlankSpace()
         scoreboardWrapper.addLine("§fMap: §a$mapName")
         if (customText === null) {
