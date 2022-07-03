@@ -1,6 +1,9 @@
 # BorderMC
 BorderMC plugin code
 
+# Alert
+Determined to refactoring from scratch
+
 ## License
 This repository was shared only for reference(study) purposes, and the code in this repository is entirely owned by *BorderMC Server organization*(The owner is mcsim415), so if you use it, it violates copyright law. \
 **Do not duplicate or use any or all of the codes here without permission.** \
